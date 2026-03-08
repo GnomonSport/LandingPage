@@ -1,0 +1,64 @@
+:root {
+  --font-w-min: 400px;
+  --font-w-max: 1400px;
+  --font-sigmoid-steepness: 1;
+  --font-scale-factor: 0;
+
+  --title-base: 6vw;
+  --title-min: 2rem;
+  --title-max: 4rem;
+  --title-size: clamp(
+    var(--title-min),
+    calc(var(--title-base) * (0.5 + (0.5 * var(--font-scale-factor)))),
+    var(--title-max)
+  );
+
+  --secondary-ratio: 0.5;
+  --secondary-text-size: calc(var(--title-size) * var(--secondary-ratio));
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+#site-brand {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+#site-title {
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: var(--title-size);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #ffffff;
+  user-select: none;
+  pointer-events: none;
+}
+
+#site-info {
+  margin: clamp(0.8rem, 1.5vw, 1.2rem) 0 0 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: var(--secondary-text-size);
+  line-height: 1.2;
+  color: #ffffff;
+  user-select: text;
+  pointer-events: auto;
+}
