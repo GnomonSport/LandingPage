@@ -4,45 +4,18 @@
  */
 
 import { createToggleButton } from '../../lib.js';
+import { createRasterController } from './controller.js';
 
-const RASTER_PIXEL_SIZE = 4;
-const ABOUT_TEXT = 'Gnomon Practice is about...';
+const RASTER_PIXEL_SIZE = 6;
+const ABOUT_TEXT = [
+  'Gnomon Practice is a small collective based in Zurich, Switzerland.',
+  'Our work is guided by a search for independence within the systems and technologies we rely on. What begins as curiosity develops into experiments we share.',
+].join('\n');
 
 let cleanup = null;
 
-function drawRoundPixelRaster(canvas, pixelSize) {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('2D context unavailable.');
-  }
-
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-
-  canvas.width = width;
-  canvas.height = height;
-
-  ctx.fillStyle = '#000000';
-  ctx.fillRect(0, 0, width, height);
-
-  const step = Math.max(1, Number(pixelSize) || 1);
-  const radius = Math.max(1, step * 0.35);
-
-  for (let y = step / 2; y < height; y += step) {
-    for (let x = step / 2; x < width; x += step) {
-      const whiteRatio = 0.1 + Math.random() * 0.8;
-      const grayValue = Math.round(whiteRatio * 255);
-      ctx.fillStyle = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-}
-
 export function mount({ appRoot }) {
   appRoot.textContent = '';
-  appRoot.style.margin = '0';
   appRoot.style.background = '#000000';
 
   const canvas = document.createElement('canvas');
@@ -52,9 +25,12 @@ export function mount({ appRoot }) {
   canvas.setAttribute('aria-label', 'Rundes Pixelraster');
   appRoot.appendChild(canvas);
 
-  const render = () => drawRoundPixelRaster(canvas, RASTER_PIXEL_SIZE);
-  render();
-  window.addEventListener('resize', render);
+  const rasterController = createRasterController({
+    canvas,
+    pixelSize: RASTER_PIXEL_SIZE,
+  });
+  rasterController.resize();
+  window.addEventListener('resize', rasterController.resize);
 
   const topBar = document.createElement('div');
   topBar.style.position = 'absolute';
@@ -74,6 +50,11 @@ export function mount({ appRoot }) {
     initialState: false,
     onToggle: ({ isOn }) => {
       isRasterAnimationRunning = isOn;
+      if (isRasterAnimationRunning) {
+        rasterController.start();
+      } else {
+        rasterController.pause();
+      }
     },
   });
   const startPauseButton = startPauseToggle.element;
@@ -117,13 +98,16 @@ export function mount({ appRoot }) {
   aboutButton.style.padding = '0';
   aboutButton.style.cursor = 'pointer';
   aboutButton.style.pointerEvents = 'auto';
+  aboutButton.style.whiteSpace = 'pre-line';
+  aboutButton.style.textAlign = 'center';
   bottomBar.appendChild(aboutButton);
   appRoot.appendChild(bottomBar);
 
   cleanup = () => {
-    window.removeEventListener('resize', render);
+    window.removeEventListener('resize', rasterController.resize);
     startPauseToggle.destroy();
     aboutToggle.destroy();
+    rasterController.destroy();
     topBar.remove();
     bottomBar.remove();
     canvas.remove();
