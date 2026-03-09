@@ -18,15 +18,15 @@ export function createRasterController({ canvas, pixelSize }) {
   const radius = Math.max(1, dotSize * 0.35);
 
   // --- PARAMETERS ---
-  const dir = { x: 1, y: 0.5 };
-  const noiseInf = 0.2;
-  const turb = 0.01;
+  let dir = { x: 1, y: 0.5 };
+  let noiseInf = 0.2;
+  let turb = 0.01;
   const smooth = 1.0;
-  const windStrength = 600;
+  let windStrength = 600;
   const coherenceFactor = 0.5;
   const noiseScale = 0.05;
-  const transfer = 0.003;
-  const pixelSmooth = 0.1;
+  let transfer = 0.003;
+  let pixelSmooth = 0.1;
   const vecOff = 0.5 * cell;
   const vecStep = 14 * cell;
   const vecLen = 10 * cell;
@@ -445,10 +445,57 @@ export function createRasterController({ canvas, pixelSize }) {
     pause();
   }
 
+  function setWindDirection(angleDeg) {
+    if (!Number.isFinite(angleDeg)) {
+      return;
+    }
+    const rad = (angleDeg * Math.PI) / 180;
+    dir = {
+      x: Math.cos(rad),
+      y: Math.sin(rad),
+    };
+  }
+
+  function setNoiseInfluence(value) {
+    if (Number.isFinite(value)) {
+      noiseInf = value;
+    }
+  }
+
+  function setTurbulence(value) {
+    if (Number.isFinite(value)) {
+      turb = value;
+    }
+  }
+
+  function setWindStrength(value) {
+    if (Number.isFinite(value)) {
+      windStrength = value;
+    }
+  }
+
+  function setTransferRate(value) {
+    if (Number.isFinite(value)) {
+      transfer = value;
+    }
+  }
+
+  function setPixelSmooth(value) {
+    if (Number.isFinite(value)) {
+      pixelSmooth = value;
+    }
+  }
+
   return {
     resize,
     start,
     pause,
     destroy,
+    setWindDirection,
+    setNoiseInfluence,
+    setTurbulence,
+    setWindStrength,
+    setTransferRate,
+    setPixelSmooth,
   };
 }
