@@ -4,10 +4,8 @@
  */
 
 const DOT_GAP = 0;
-const DEBUG_VEC = true;
-const ITER_SPEED = 0.25;
+const DEBUG_VEC = false;
 const TWO_PI = Math.PI * 2;
-const MAX_STEPS = 3;
 
 export function createRasterController({ canvas, pixelSize }) {
   const ctx = canvas.getContext('2d');
@@ -20,15 +18,17 @@ export function createRasterController({ canvas, pixelSize }) {
   const radius = Math.max(1, dotSize * 0.35);
 
   // --- PARAMETERS ---
-  const dir = { x: 0, y: 1 };
-  const noiseInf = 0.1;
-  const turb = 0.04;
+  const dir = { x: 1, y: 0.5 };
+  const noiseInf = 0.2;
+  const turb = 0.01;
   const smooth = 1.0;
-  const windStrength = 1.0;
+  const windStrength = 600;
+  const coherenceFactor = 0.5;
   const noiseScale = 0.05;
-  const transfer = 0.2;
+  const transfer = 0.003;
+  const pixelSmooth = 0.1;
   const vecOff = 0.5 * cell;
-  const vecStep = 20 * cell;
+  const vecStep = 14 * cell;
   const vecLen = 10 * cell;
 
   let width = 0;
@@ -43,8 +43,6 @@ export function createRasterController({ canvas, pixelSize }) {
   let gridH = 0;
   let isRunning = false;
   let animationFrameId = null;
-  let lastTime = 0;
-  let iterAcc = 0;
   let simTime = 0;
 
   function fade(t) {
@@ -280,8 +278,8 @@ export function createRasterController({ canvas, pixelSize }) {
         const L = m + transfer * hPrev;
         const tx = px + nx * L;
         const ty = py + ny * L;
-        const tc = wrapI(Math.floor(tx / cell), cols);
-        const tr = wrapI(Math.floor(ty / cell), rows);
+        const tc = wrapI(Math.round(tx / cell), cols);
+        const tr = wrapI(Math.round(ty / cell), rows);
         tBuf[i] = tr * cols + tc;
       }
     }
@@ -296,6 +294,24 @@ export function createRasterController({ canvas, pixelSize }) {
       const q = qBuf[i];
       next[i].h -= q;
       next[tBuf[i]].h += q;
+    }
+
+    // PHASE 4.5 — pixel smoothing
+    const sBuf = new Array(curr.length);
+    for (let y = 0; y < rows; y += 1) {
+      for (let x = 0; x < cols; x += 1) {
+        const i = y * cols + x;
+        const l = y * cols + wrapI(x - 1, cols);
+        const r = y * cols + wrapI(x + 1, cols);
+        const u = wrapI(y - 1, rows) * cols + x;
+        const d = wrapI(y + 1, rows) * cols + x;
+        const hSelf = next[i].h;
+        const hMean = (next[l].h + next[r].h + next[u].h + next[d].h) * 0.25;
+        sBuf[i] = (1 - pixelSmooth) * hSelf + pixelSmooth * hMean;
+      }
+    }
+    for (let i = 0; i < curr.length; i += 1) {
+      next[i].h = sBuf[i];
     }
 
     // PHASE 5 — finalize
@@ -340,9 +356,32 @@ export function createRasterController({ canvas, pixelSize }) {
         const ay = (l.y + r.y + u.y + d.y) * 0.25;
         let vx = (1 - smooth) * v.x + smooth * ax;
         let vy = (1 - smooth) * v.y + smooth * ay;
+        const vm = Math.hypot(vx, vy) || 1;
+        const vxn = vx / vm;
+        const vyn = vy / vm;
+        const lm = Math.hypot(l.x, l.y) || 1;
+        const lx = l.x / lm;
+        const ly = l.y / lm;
+        const rm = Math.hypot(r.x, r.y) || 1;
+        const rx = r.x / rm;
+        const ry = r.y / rm;
+        const um = Math.hypot(u.x, u.y) || 1;
+        const ux = u.x / um;
+        const uy = u.y / um;
+        const dm = Math.hypot(d.x, d.y) || 1;
+        const dx = d.x / dm;
+        const dy = d.y / dm;
+        const align = (
+          vxn * lx + vyn * ly +
+          vxn * rx + vyn * ry +
+          vxn * ux + vyn * uy +
+          vxn * dx + vyn * dy
+        ) * 0.25;
+        let strength = windStrength * (1 + coherenceFactor * align);
+        strength = Math.max(0.1, strength);
         const m = Math.hypot(vx, vy) || 1;
-        vx = (vx / m) * windStrength;
-        vy = (vy / m) * windStrength;
+        vx = (vx / m) * strength;
+        vy = (vy / m) * strength;
         next[i] = { x: vx, y: vy };
       }
     }
@@ -366,25 +405,12 @@ export function createRasterController({ canvas, pixelSize }) {
     stepLed();
   }
 
-  function tick(time = 0) {
+  function tick() {
     if (!isRunning) {
       return;
     }
 
-    if (lastTime === 0) {
-      lastTime = time;
-    }
-    const dt = time - lastTime;
-    lastTime = time;
-
-    iterAcc += ITER_SPEED * (dt / 16);
-    let steps = 0;
-    while (iterAcc >= 1 && steps < MAX_STEPS) {
-      stepSim();
-      iterAcc -= 1;
-      steps += 1;
-    }
-
+    stepSim();
     draw();
     animationFrameId = window.requestAnimationFrame(tick);
   }
@@ -404,14 +430,11 @@ export function createRasterController({ canvas, pixelSize }) {
       return;
     }
     isRunning = true;
-    lastTime = 0;
     tick();
   }
 
   function pause() {
     isRunning = false;
-    lastTime = 0;
-    iterAcc = 0;
     if (animationFrameId !== null) {
       window.cancelAnimationFrame(animationFrameId);
       animationFrameId = null;
