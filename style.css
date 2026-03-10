@@ -47,7 +47,7 @@ body {
   line-height: 0.95;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: #ff0000;
+  color: #00ff00;
   user-select: none;
   pointer-events: none;
 }
@@ -58,7 +58,7 @@ body {
   font-weight: 500;
   font-size: var(--secondary-text-size);
   line-height: 1.2;
-  color: #ff0000;
+  color: #00ff00;
   user-select: text;
   pointer-events: auto;
 }
