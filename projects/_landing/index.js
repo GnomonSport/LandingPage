@@ -7,10 +7,26 @@ import { createToggleButton } from '../../lib.js';
 import { createRasterController } from './controller.js';
 
 const RASTER_PIXEL_SIZE = 6;
-const ABOUT_TEXT = [
+const ABOUT_FALLBACK_TEXT = [
   'Gnomon Practice is a small collective based in Zurich, Switzerland.',
   'Our work is guided by a search for independence within the systems and technologies we rely on. What begins as curiosity develops into experiments we share.',
 ].join('\n');
+
+/**
+ * Liest den About-Text aus dem statischen HTML (#site-about), damit er für
+ * Suchmaschinen indexierbar bleibt und hier nur eine Quelle existiert.
+ */
+function readAboutText() {
+  const element = document.getElementById('site-about');
+  if (!element) {
+    return ABOUT_FALLBACK_TEXT;
+  }
+  const lines = element.textContent
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  return lines.length > 0 ? lines.join('\n') : ABOUT_FALLBACK_TEXT;
+}
 
 let cleanup = null;
 
@@ -147,7 +163,7 @@ export function mount({ appRoot }) {
   canvas.style.display = 'block';
   canvas.style.width = '100vw';
   canvas.style.height = '100vh';
-  canvas.setAttribute('aria-label', 'Rundes Pixelraster');
+  canvas.setAttribute('aria-label', 'Animated round pixel raster');
   appRoot.appendChild(canvas);
 
   const rasterController = createRasterController({
@@ -280,7 +296,7 @@ export function mount({ appRoot }) {
   bottomBar.style.pointerEvents = 'none';
 
   const aboutToggle = createToggleButton({
-    onLabel: ABOUT_TEXT,
+    onLabel: readAboutText(),
     offLabel: 'About',
     initialState: false,
   });
