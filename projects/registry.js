@@ -11,6 +11,13 @@ export const projectRegistry = [
     title: 'Landing',
     loader: () => import('./_landing/index.js'),
   },
+  {
+    id: 'baurechtbrowser',
+    route: 'baurechtbrowser',
+    isLanding: false,
+    title: 'Baurechtbrowser',
+    loader: () => import('./baurechtbrowser/index.js'),
+  },
 ];
 
 export function getProjectRegistry() {

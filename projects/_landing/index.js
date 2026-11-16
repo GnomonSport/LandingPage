@@ -139,7 +139,7 @@ function createVerticalSlider({
   };
 }
 
-export function mount({ appRoot }) {
+export function mount({ appRoot, projectLinks = [] }) {
   appRoot.textContent = '';
   appRoot.style.background = '#000000';
 
@@ -297,6 +297,36 @@ export function mount({ appRoot }) {
   aboutButton.style.pointerEvents = 'auto';
   aboutButton.style.whiteSpace = 'pre-line';
   aboutButton.style.textAlign = 'center';
+
+  // Links zu den übrigen Projekten, in einer Zeile über dem About-Schalter.
+  bottomBar.style.flexDirection = 'column';
+  bottomBar.style.alignItems = 'center';
+  bottomBar.style.gap = '0.65rem';
+
+  const projectLinkRow = document.createElement('nav');
+  projectLinkRow.setAttribute('aria-label', 'Projects');
+  projectLinkRow.style.display = 'flex';
+  projectLinkRow.style.flexWrap = 'wrap';
+  projectLinkRow.style.justifyContent = 'center';
+  projectLinkRow.style.gap = '0.2rem 1.2rem';
+  projectLinkRow.style.pointerEvents = 'auto';
+
+  for (let i = 0; i < projectLinks.length; i += 1) {
+    const projectLink = document.createElement('a');
+    projectLink.textContent = projectLinks[i].title;
+    projectLink.href = projectLinks[i].href;
+    projectLink.style.fontFamily = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+    projectLink.style.fontSize = 'var(--secondary-text-size)';
+    projectLink.style.fontWeight = '500';
+    projectLink.style.lineHeight = '1.2';
+    projectLink.style.color = '#ffffff';
+    projectLink.style.textDecoration = 'none';
+    projectLinkRow.appendChild(projectLink);
+  }
+
+  if (projectLinks.length > 0) {
+    bottomBar.appendChild(projectLinkRow);
+  }
   bottomBar.appendChild(aboutButton);
   appRoot.appendChild(bottomBar);
 
