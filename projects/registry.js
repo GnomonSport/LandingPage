@@ -18,6 +18,13 @@ export const projectRegistry = [
     title: 'Baurechtbrowser',
     loader: () => import('./baurechtbrowser/index.js'),
   },
+  {
+    id: 'sanierungsradar',
+    route: 'sanierungsradar',
+    isLanding: false,
+    title: 'Sanierungsradar',
+    loader: () => import('./sanierungsradar/index.js'),
+  },
 ];
 
 export function getProjectRegistry() {
