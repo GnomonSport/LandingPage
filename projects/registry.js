@@ -11,6 +11,13 @@ export const projectRegistry = [
     title: 'Landing',
     loader: () => import('./_landing/index.js'),
   },
+  {
+    id: 'sanierungsradar',
+    route: 'sanierungsradar',
+    isLanding: false,
+    title: 'Sanierungsradar',
+    url: 'https://sanierungsradar.ch',
+  },
 ];
 
 export function getProjectRegistry() {

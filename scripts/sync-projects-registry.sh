@@ -34,6 +34,7 @@ for DIR in "$PROJECTS_DIR"/*; do
   ROUTE=$(sed -En "s/^[[:space:]]*route:[[:space:]]*'([^']*)'.*/\\1/p" "$META_PATH" | head -n1)
   LANDING=$(sed -En "s/^[[:space:]]*isLanding:[[:space:]]*(true|false).*/\\1/p" "$META_PATH" | head -n1)
   TITLE=$(sed -En "s/^[[:space:]]*title:[[:space:]]*'([^']*)'.*/\\1/p" "$META_PATH" | head -n1)
+  URL=$(sed -En "s/^[[:space:]]*url:[[:space:]]*'([^']*)'.*/\\1/p" "$META_PATH" | head -n1)
 
   if [ -z "$ROUTE" ]; then
     echo "Missing route in $META_PATH" >&2
@@ -60,12 +61,24 @@ for DIR in "$PROJECTS_DIR"/*; do
 
   [ "$LANDING" = "true" ] && LANDING_COUNT=$((LANDING_COUNT + 1))
 
+  if [ -z "$URL" ] && [ ! -f "$DIR/index.js" ]; then
+    echo "Project needs index.js or a url in $META_PATH" >&2
+    rm -f "$TMP_FILE"
+    exit 1
+  fi
+
   printf '%s\n' '  {' >> "$TMP_FILE"
   printf "    id: '%s',\n" "$ID" >> "$TMP_FILE"
   printf "    route: '%s',\n" "$ROUTE" >> "$TMP_FILE"
   printf "    isLanding: %s,\n" "$LANDING" >> "$TMP_FILE"
   printf "    title: '%s',\n" "$TITLE" >> "$TMP_FILE"
-  printf "    loader: () => import('./%s/index.js'),\n" "$ID" >> "$TMP_FILE"
+  # Externe Projekte haben eine url; ein loader existiert nur mit eigenem index.js.
+  if [ -n "$URL" ]; then
+    printf "    url: '%s',\n" "$URL" >> "$TMP_FILE"
+  fi
+  if [ -f "$DIR/index.js" ]; then
+    printf "    loader: () => import('./%s/index.js'),\n" "$ID" >> "$TMP_FILE"
+  fi
   printf '%s\n' '  },' >> "$TMP_FILE"
 
   COUNT=$((COUNT + 1))

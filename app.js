@@ -37,7 +37,7 @@ function createAppFontScaleController(root = document.documentElement) {
   window.addEventListener('resize', update);
 }
 
-async function loadAndMountProject(project) {
+async function loadAndMountProject(project, registry) {
   const projectModule = await project.loader();
 
   if (typeof projectModule.mount !== 'function') {
@@ -49,7 +49,7 @@ async function loadAndMountProject(project) {
     throw new Error("Missing app root element '#app'.");
   }
 
-  projectModule.mount({ appRoot, project });
+  projectModule.mount({ appRoot, project, registry });
 }
 
 async function initApp() {
@@ -61,7 +61,7 @@ async function initApp() {
   if (!landingProject) {
     throw new Error('No landing project configured.');
   }
-  await loadAndMountProject(landingProject);
+  await loadAndMountProject(landingProject, registry);
 }
 
 initApp().catch((error) => {

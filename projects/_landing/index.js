@@ -139,7 +139,72 @@ function createVerticalSlider({
   };
 }
 
-export function mount({ appRoot }) {
+function applySecondaryTextStyle(element) {
+  element.style.fontFamily = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+  element.style.fontSize = 'var(--secondary-text-size)';
+  element.style.fontWeight = '500';
+  element.style.lineHeight = '1.2';
+  element.style.color = '#ffffff';
+}
+
+/**
+ * Portfolio: Liste aller Projekte der Registry mit externer url.
+ * Gibt null zurück, wenn kein solches Projekt existiert.
+ */
+function createPortfolio(registry) {
+  const projects = registry.filter((project) => !project.isLanding && project.url);
+  if (projects.length === 0) {
+    return null;
+  }
+
+  const list = document.createElement('ul');
+  list.id = 'portfolio-list';
+  list.style.display = 'none';
+  list.style.listStyle = 'none';
+  list.style.margin = '0';
+  list.style.padding = '0';
+  list.style.textAlign = 'center';
+  list.style.pointerEvents = 'auto';
+
+  for (let i = 0; i < projects.length; i += 1) {
+    const link = document.createElement('a');
+    link.href = projects[i].url;
+    link.textContent = projects[i].title;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    applySecondaryTextStyle(link);
+    link.style.textDecoration = 'underline';
+    link.style.textDecorationThickness = '0.06em';
+    link.style.textUnderlineOffset = '0.18em';
+
+    const item = document.createElement('li');
+    item.appendChild(link);
+    list.appendChild(item);
+  }
+
+  const toggle = createToggleButton({
+    onLabel: 'Portfolio',
+    offLabel: 'Portfolio',
+    initialState: false,
+    onToggle: ({ isOn, button }) => {
+      list.style.display = isOn ? 'block' : 'none';
+      button.setAttribute('aria-expanded', String(isOn));
+    },
+  });
+  const button = toggle.element;
+  button.setAttribute('aria-expanded', 'false');
+  button.setAttribute('aria-controls', list.id);
+  applySecondaryTextStyle(button);
+  button.style.background = 'transparent';
+  button.style.border = '0';
+  button.style.padding = '0';
+  button.style.cursor = 'pointer';
+  button.style.pointerEvents = 'auto';
+
+  return { button, list, destroy: toggle.destroy };
+}
+
+export function mount({ appRoot, registry = [] }) {
   appRoot.textContent = '';
   appRoot.style.background = '#000000';
 
@@ -276,8 +341,16 @@ export function mount({ appRoot }) {
   bottomBar.style.padding = '1rem';
   bottomBar.style.boxSizing = 'border-box';
   bottomBar.style.display = 'flex';
-  bottomBar.style.justifyContent = 'center';
+  bottomBar.style.flexDirection = 'column';
+  bottomBar.style.alignItems = 'center';
+  bottomBar.style.gap = '0.35rem';
   bottomBar.style.pointerEvents = 'none';
+
+  const portfolio = createPortfolio(registry);
+  if (portfolio) {
+    bottomBar.appendChild(portfolio.button);
+    bottomBar.appendChild(portfolio.list);
+  }
 
   const aboutToggle = createToggleButton({
     onLabel: ABOUT_TEXT,
@@ -307,6 +380,9 @@ export function mount({ appRoot }) {
       sliders[i].destroy();
     }
     aboutToggle.destroy();
+    if (portfolio) {
+      portfolio.destroy();
+    }
     rasterController.destroy();
     topBar.remove();
     bottomBar.remove();
