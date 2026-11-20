@@ -1,16 +1,61 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>web_gnopra</title>
+    <title>Gnomon Practice | Collective in Zürich</title>
+    <meta name="description" content="Gnomon Practice is a small collective based in Zürich, Switzerland, exploring independence within the systems and technologies we rely on." />
+    <link rel="canonical" href="https://gnomonpractice.com/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Gnomon Practice" />
+    <meta property="og:title" content="Gnomon Practice" />
+    <meta property="og:description" content="A small collective based in Zürich, Switzerland." />
+    <meta property="og:url" content="https://gnomonpractice.com/" />
+    <meta property="og:image" content="https://gnomonpractice.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Gnomon Practice, Zürich" />
+    <meta property="og:locale" content="en_CH" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Gnomon Practice" />
+    <meta name="twitter:description" content="A small collective based in Zürich, Switzerland." />
+    <meta name="twitter:image" content="https://gnomonpractice.com/og-image.png" />
+
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="modulepreload" href="./app.js" />
+    <link rel="modulepreload" href="./lib.js" />
+    <link rel="modulepreload" href="./projects/registry.js" />
+    <link rel="modulepreload" href="./projects/_landing/index.js" />
+    <link rel="modulepreload" href="./projects/_landing/controller.js" />
     <link rel="stylesheet" href="./style.css" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Gnomon Practice",
+      "url": "https://gnomonpractice.com/",
+      "email": "info@gnomonpractice.com",
+      "description": "A small collective based in Zürich, Switzerland, exploring independence within the systems and technologies we rely on.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Zürich",
+        "addressCountry": "CH"
+      }
+    }
+    </script>
   </head>
   <body>
     <main id="app"></main>
     <div id="site-brand">
       <h1 id="site-title">Gnomon <br /> Practice</h1>
       <p id="site-info">Switzerland, Zürich <br /> <a href="mailto:info@gnomonpractice.com">info@gnomonpractice.com</a></p>
+      <p id="site-about">Gnomon Practice is a small collective based in Zurich, Switzerland.
+Our work is guided by a search for independence within the systems and technologies we rely on. What begins as curiosity develops into experiments we share.</p>
     </div>
     <script type="module" src="./app.js"></script>
   </body>
